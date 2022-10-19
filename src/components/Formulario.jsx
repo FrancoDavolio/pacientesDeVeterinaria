@@ -5,6 +5,20 @@ import ListaCitas from "./ListaCitas";
 const Formulario = () => {
   const [validated, setValidated] = useState(false);
 
+  const [id, setId] = useState(0);
+  const [nombre, setNombre] = useState("");
+  const [dueno, setDueno] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [hora, setHora] = useState("");
+  const [sintomas, setSintomas] = useState("");
+
+  const pacienteLocalStorage = JSON.parse(localStorage.getItem("citas")) || [];
+  const [citas, setCitas] = useState(pacienteLocalStorage);
+
+  useEffect(() => {
+    localStorage.setItem("citas", JSON.stringify(citas));
+  }, [citas]);
+
   const mostrarAlertaE = () => {
     alert("Datos enviados!");
   };
@@ -20,9 +34,33 @@ const Formulario = () => {
       event.preventDefault();
       event.stopPropagation();
     } else {
-      mostrarAlertaE();
+
       setValidated(true);
+
+      const newCita = {
+        id: id,
+        nombre: nombre,
+        dueno: dueno,
+        fecha: fecha,
+        hora: hora,
+        sintomas: sintomas,
+      };
+
+      setCitas([...citas, newCita]);
+      setId(0);
+      setNombre("");
+      setDueno("");
+      setFecha("");
+      setHora("");
+      setSintomas("");
+
+      mostrarAlertaE();
     }
+  };
+
+  const borrarPaciente = (cita) => {
+    const arregloModificado = citas.filter((item)=>item.id !== cita.id)
+    setCitas(arregloModificado);
   };
 
   return (
@@ -39,10 +77,10 @@ const Formulario = () => {
               className="my-4"
             >
               <Form.Label>Nombre de la mascota:</Form.Label>
-              <Form.Control required type="text" placeholder="Nombre" />
+              <Form.Control required type="text" placeholder="Nombre de la mascota" onChange={(e)=>setNombre(e.target.value)} value={nombre} />
               <Form.Control.Feedback>Bien!</Form.Control.Feedback>
               <Form.Control.Feedback type="invalid">
-                Escriba un nombre valido.
+                Escriba el nombre de la mascota.
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group
@@ -52,10 +90,10 @@ const Formulario = () => {
               className="my-4"
             >
               <Form.Label>Nombre del dueño:</Form.Label>
-              <Form.Control required type="text" placeholder="Aplellido" />
+              <Form.Control required type="text" placeholder="Nombre del dueño" onChange={(e)=>setDueno(e.target.value)} value={dueno}/>
               <Form.Control.Feedback>Bien!</Form.Control.Feedback>
               <Form.Control.Feedback type="invalid">
-                Escriba un nombre valido.
+                Escriba el nombre del dueño.
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group
@@ -65,7 +103,7 @@ const Formulario = () => {
               className="my-4"
             >
               <Form.Label>Fecha:</Form.Label>
-              <Form.Control required type="date" />
+              <Form.Control required type="date" onChange={(e)=>setFecha(e.target.value)} value={fecha}/>
               <Form.Control.Feedback>BIen!</Form.Control.Feedback>
               <Form.Control.Feedback type="invalid">
                 Escriba un fecha valida.
@@ -78,7 +116,7 @@ const Formulario = () => {
               className="my-4"
             >
               <Form.Label>Hora:</Form.Label>
-              <Form.Control required type="time" />
+              <Form.Control required type="time" onChange={(e)=>setHora(e.target.value)} value={hora}/>
               <Form.Control.Feedback>Bien!</Form.Control.Feedback>
               <Form.Control.Feedback type="invalid">
                 Escriba una hora valida.
@@ -95,6 +133,7 @@ const Formulario = () => {
                 required
                 type="text"
                 placeholder="Describe sintomas"
+                onChange={(e)=>setSintomas(e.target.value)} value={sintomas}
               />
               <Form.Control.Feedback>Bien!</Form.Control.Feedback>
               <Form.Control.Feedback type="invalid">
@@ -106,7 +145,7 @@ const Formulario = () => {
           <Button type="submit">Submit form</Button>
         </Form>
       </div>
-      <ListaCitas></ListaCitas>
+      <ListaCitas citas={citas} borrarPaciente={borrarPaciente}></ListaCitas>
     </Container>
   );
 };
